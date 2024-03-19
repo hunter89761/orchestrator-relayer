@@ -18,7 +18,6 @@ RUN uname -a &&\
 # final image
 FROM docker.io/alpine:3.19.0
 
-ARG UID=10001
 ARG USER_NAME=celestia
 
 ENV CELESTIA_HOME=/home/${USER_NAME}
@@ -27,19 +26,10 @@ ENV CELESTIA_HOME=/home/${USER_NAME}
 RUN apk update && apk add --no-cache \
         bash \
         curl \
-        jq \
-    # Creates a user with $UID and $GID=$UID
-    && adduser ${USER_NAME} \
-        -D \
-        -g ${USER_NAME} \
-        -h ${CELESTIA_HOME} \
-        -s /sbin/nologin \
-        -u ${UID}
+        jq
 
 COPY --from=builder /orchestrator-relayer/build/blobstream /bin/blobstream
-COPY --chown=${USER_NAME}:${USER_NAME} docker/entrypoint.sh /opt/entrypoint.sh
-
-USER ${USER_NAME}
+COPY docker/entrypoint.sh /opt/entrypoint.sh
 
 # p2p port
 EXPOSE 30000
